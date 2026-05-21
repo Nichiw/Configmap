@@ -26,22 +26,17 @@ jobs:
 
       - name: Analisar dependências com FOSSA
         env:
-          FOSSA_API_KEY: ${{secrets.FOSSA_API_KEY}}
+          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
         run: fossa analyze
 
       - name: Verificar licenças e vulnerabilidades
         env:
           FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
-        run: fossa test --json > fossa-results.json || true
+        run: fossa test
 
-      - name: Upload do relatório FOSSA
-        uses: actions/upload-artifact@v4
-        with:
-          name: fossa-report
-          path: fossa-results.json
 # ─────────────────────────────────────────
-# SAST - Semgrep
-# ─────────────────────────────────────────
+  # SAST - Semgrep
+  # ─────────────────────────────────────────
   sast-semgrep:
     name: SAST - Semgrep
     runs-on: ubuntu-latest
@@ -54,40 +49,7 @@ jobs:
         run: pip install semgrep
 
       - name: Rodar Semgrep (regras padrão Python)
-        run: |
-          semgrep scan \
-            --config=auto \
-            --json \
-            --output=semgrep-results.json \
-            ./app || true
+        run: semgrep scan --config=auto ./app
 
       - name: Rodar Semgrep (regra customizada - print vs logger)
-        run: |
-          semgrep scan \
-            --config=semgrep-rules/no-print.yaml \
-            --json \
-            --output=semgrep-custom-results.json \
-            ./app || true
-
-      - name: Exibir resultado da regra customizada
-        run: |
-          echo "===== Resultados da regra customizada (print vs logger) ====="
-          cat semgrep-custom-results.json | python3 -c "
-          import json, sys
-          data = json.load(sys.stdin)
-          results = data.get('results', [])
-          if not results:
-              print('Nenhuma ocorrência encontrada.')
-          else:
-              print(f'Total de ocorrências: {len(results)}')
-              for r in results:
-                  print(f\"  - {r['path']}:{r['start']['line']} → {r['extra']['message']}\")
-          "
-
-      - name: Upload dos relatórios Semgrep
-        uses: actions/upload-artifact@v4
-        with:
-          name: semgrep-reports
-          path: |
-            semgrep-results.json
-            semgrep-custom-results.json
+        run: semgrep scan --config=semgrep-rules/no-print.yaml ./app
