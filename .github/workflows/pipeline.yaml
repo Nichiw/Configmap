@@ -8,8 +8,40 @@ on:
 
 jobs:
   # ─────────────────────────────────────────
-  # SAST - Semgrep
+  # SCA - FOSSA
   # ─────────────────────────────────────────
+  sca-fossa:
+    name: SCA - FOSSA
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Instalar FOSSA CLI
+        run: |
+          curl -H 'Cache-Control: no-cache' \
+            https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh \
+            | bash
+
+      - name: Analisar dependências com FOSSA
+        env:
+          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
+        run: fossa analyze
+
+      - name: Verificar licenças e vulnerabilidades
+        env:
+          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
+        run: fossa test --json > fossa-results.json || true
+
+      - name: Upload do relatório FOSSA
+        uses: actions/upload-artifact@v4
+        with:
+          name: fossa-report
+          path: fossa-results.json
+# ─────────────────────────────────────────
+# SAST - Semgrep
+# ─────────────────────────────────────────
   sast-semgrep:
     name: SAST - Semgrep
     runs-on: ubuntu-latest
@@ -60,38 +92,6 @@ jobs:
             semgrep-results.json
             semgrep-custom-results.json
 
-  # ─────────────────────────────────────────
-  # SCA - FOSSA
-  # ─────────────────────────────────────────
-  sca-fossa:
-    name: SCA - FOSSA
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout do código
-        uses: actions/checkout@v4
-
-      - name: Instalar FOSSA CLI
-        run: |
-          curl -H 'Cache-Control: no-cache' \
-            https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh \
-            | bash
-
-      - name: Analisar dependências com FOSSA
-        env:
-          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
-        run: fossa analyze
-
-      - name: Verificar licenças e vulnerabilidades
-        env:
-          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
-        run: fossa test --json > fossa-results.json || true
-
-      - name: Upload do relatório FOSSA
-        uses: actions/upload-artifact@v4
-        with:
-          name: fossa-report
-          path: fossa-results.json
 
   # ─────────────────────────────────────────
   # Relatório consolidado
