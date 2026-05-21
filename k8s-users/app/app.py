@@ -53,6 +53,7 @@ def criar_usuario():
         conn.commit()
         cur.close()
         conn.close()
+        print("mensagem aleatória")
         return jsonify({"mensagem": "Usuário criado!", "id": usuario_id}), 201
     except psycopg2.errors.UniqueViolation:
         return jsonify({"erro": "Email já cadastrado"}), 409

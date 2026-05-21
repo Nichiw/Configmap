@@ -1,0 +1,20 @@
+rules:
+  - id: no-print-use-logger
+    patterns:
+      - pattern: print(...)
+    message: >
+      Uso de print() detectado em '$PATH'.
+    languages: [python]
+    severity: WARNING
+    metadata:
+      category: best-practice
+      subcategory: logging
+      description: >
+        A função print() não é adequada para ambientes de produção.
+      fix: |
+        Substitua:
+          print("mensagem")
+        Por:
+          import logging
+          logger = logging.getLogger(__name__)
+          logger.info("mensagem")
