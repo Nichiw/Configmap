@@ -49,7 +49,7 @@ jobs:
         run: pip install semgrep
 
       - name: Rodar Semgrep (regras padrão Python)
-        run: semgrep scan --config=auto ./app
+        run: semgrep scan --config auto ./app
 
       - name: Rodar Semgrep (regra customizada - print vs logger)
-        run: semgrep scan --config=semgrep-rules/no-print.yaml ./app
+        run: semgrep scan --config semgrep-rules/no-print.yaml ./app
