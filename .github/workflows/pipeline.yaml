@@ -49,7 +49,11 @@ jobs:
         run: pip install semgrep
 
       - name: Rodar Semgrep (regras padrão)
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
         run: semgrep scan
 
       - name: Rodar Semgrep (regra - print vs logger)
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
         run: semgrep scan --config k8s-users/semgrep-rules/no-print.yaml
